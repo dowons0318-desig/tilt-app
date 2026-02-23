@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>기울기 측정</title>
 
 <style>
@@ -14,41 +14,66 @@ body{
     font-size:11px;
 }
 h3{margin:4px 0;font-size:14px;}
+
 table{
     width:100%;
     border-collapse:collapse;
     background:white;
 }
+
 th,td{
     border:1px solid #ccc;
     padding:2px;
     text-align:center;
     font-size:10px;
 }
+
 input{
     width:34px;
     padding:3px;
     font-size:11px;
     text-align:center;
+    background:white;
+    border:1px solid #ccc;
 }
+
+/* 🔢 숫자 스피너 제거 */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+}
+input[type=number]{
+    -moz-appearance:textfield;
+}
+
 .point{width:40px;}
 .distance{width:55px;}
-button{
-    width:100%;
-    padding:8px;
-    font-size:13px;
-    margin-top:4px;
+
+.btn-row{
+    display:flex;
+    gap:4px;
+    margin-top:5px;
+}
+
+.btn-row button{
+    flex:1;
+    padding:8px 0;
+    font-size:12px;
     border:none;
     border-radius:6px;
     font-weight:bold;
 }
+
 .add{background:#1976d2;color:white;}
 .delete{background:#c62828;color:white;}
 .reset{background:#424242;color:white;}
+
 .result-wrap{
     overflow-x:auto;
     margin-top:6px;
 }
+
 h4{margin:4px 0;font-size:13px;}
 </style>
 </head>
@@ -71,36 +96,37 @@ h4{margin:4px 0;font-size:13px;}
 </tr>
 
 <tr>
+<td rowspan="2"><input id="point" class="point"></td>
 <td rowspan="2">
-<input id="point" class="point">
-</td>
-<td rowspan="2">
-<input type="number" id="distance" class="distance"
-       inputmode="decimal" step="0.001">
+<input type="number" id="distance" class="distance" inputmode="decimal" step="0.001">
 </td>
 <td>Top</td>
-<td><input id="vU_d" type="number" inputmode="numeric" min="0"></td>
-<td><input id="vU_m" type="number" inputmode="numeric" min="0" max="59"></td>
-<td><input id="vU_s" type="number" inputmode="numeric" min="0" max="59"></td>
-<td><input id="hU_d" type="number" inputmode="numeric" min="0"></td>
-<td><input id="hU_m" type="number" inputmode="numeric" min="0" max="59"></td>
-<td><input id="hU_s" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="vU_d" type="number" inputmode="numeric"></td>
+<td><input id="vU_m" type="number" inputmode="numeric"></td>
+<td><input id="vU_s" type="number" inputmode="numeric"></td>
+<td><input id="hU_d" type="number" inputmode="numeric"></td>
+<td><input id="hU_m" type="number" inputmode="numeric"></td>
+<td><input id="hU_s" type="number" inputmode="numeric"></td>
 </tr>
 
 <tr>
 <td>Bot</td>
-<td><input id="vL_d" type="number" inputmode="numeric" min="0"></td>
-<td><input id="vL_m" type="number" inputmode="numeric" min="0" max="59"></td>
-<td><input id="vL_s" type="number" inputmode="numeric" min="0" max="59"></td>
-<td><input id="hL_d" type="number" inputmode="numeric" min="0"></td>
-<td><input id="hL_m" type="number" inputmode="numeric" min="0" max="59"></td>
-<td><input id="hL_s" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="vL_d" type="number" inputmode="numeric"></td>
+<td><input id="vL_m" type="number" inputmode="numeric"></td>
+<td><input id="vL_s" type="number" inputmode="numeric"></td>
+
+<!-- 🔒 수평 Bot 고정 (색상 동일) -->
+<td><input id="hL_d" value="0" readonly></td>
+<td><input id="hL_m" value="0" readonly></td>
+<td><input id="hL_s" value="0" readonly></td>
 </tr>
 </table>
 
-<button class="add" onclick="addData()">➕ 추가</button>
-<button class="delete" onclick="deleteSelected()">🗑 삭제</button>
-<button class="reset" onclick="resetAll()">⚠ 초기화</button>
+<div class="btn-row">
+<button class="add" onclick="addData()">추가</button>
+<button class="delete" onclick="deleteSelected()">삭제</button>
+<button class="reset" onclick="resetAll()">초기화</button>
+</div>
 
 <div class="result-wrap">
 <h4>📊 결과</h4>
@@ -120,9 +146,26 @@ window.onload=function(){
         dataList=JSON.parse(saved);
         render();
     }
+
+    // ⏎ 엔터 이동 기능
+    let inputs=[...document.querySelectorAll("input:not([readonly])")];
+    inputs.forEach((input,i)=>{
+        input.addEventListener("keydown",function(e){
+            if(e.key==="Enter"){
+                e.preventDefault();
+                if(i < inputs.length-1){
+                    inputs[i+1].focus();
+                }else{
+                    addData();
+                }
+            }
+        });
+    });
 };
 
-function save(){localStorage.setItem("tiltData",JSON.stringify(dataList));}
+function save(){
+    localStorage.setItem("tiltData",JSON.stringify(dataList));
+}
 
 function dms(d,m,s){
     d=parseFloat(d)||0;
@@ -143,7 +186,7 @@ try{
     let vU=dms(vU_d.value,vU_m.value,vU_s.value);
     let vL=dms(vL_d.value,vL_m.value,vL_s.value);
     let hU=rad(dms(hU_d.value,hU_m.value,hU_s.value));
-    let hL=rad(dms(hL_d.value,hL_m.value,hL_s.value));
+    let hL=0;
 
     let aU=rad(90-vU);
     let aL=rad(90-vL);
@@ -177,9 +220,12 @@ try{
 
     save();
     render();
-    document.querySelectorAll("input").forEach(i=>i.value="");
+    document.querySelectorAll("input:not([readonly])").forEach(i=>i.value="");
+    document.getElementById("point").focus();
 
-}catch(e){alert("⚠ "+e);}
+}catch(e){
+    alert("⚠ "+e);
+}
 }
 
 function render(){
