@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>기울기 측정</title>
+
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+    background:#f4f6f8;
+    margin:0;
+    padding:4px;
+    font-size:11px;
+}
+h3{margin:4px 0;font-size:14px;}
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+th,td{
+    border:1px solid #ccc;
+    padding:2px;
+    text-align:center;
+    font-size:10px;
+}
+input{
+    width:34px;
+    padding:3px;
+    font-size:11px;
+    text-align:center;
+}
+.point{width:40px;}
+.distance{width:55px;}
+button{
+    width:100%;
+    padding:8px;
+    font-size:13px;
+    margin-top:4px;
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+}
+.add{background:#1976d2;color:white;}
+.delete{background:#c62828;color:white;}
+.reset{background:#424242;color:white;}
+.result-wrap{
+    overflow-x:auto;
+    margin-top:6px;
+}
+h4{margin:4px 0;font-size:13px;}
+</style>
+</head>
+
+<body>
+
+<h3>📐 기울기 입력</h3>
+
+<table>
+<tr>
+<th rowspan="2">지점</th>
+<th rowspan="2">거리</th>
+<th rowspan="2">구분</th>
+<th colspan="3">수직</th>
+<th colspan="3">수평</th>
+</tr>
+<tr>
+<th>°</th><th>′</th><th>″</th>
+<th>°</th><th>′</th><th>″</th>
+</tr>
+
+<tr>
+<td rowspan="2">
+<input id="point" class="point">
+</td>
+<td rowspan="2">
+<input type="number" id="distance" class="distance"
+       inputmode="decimal" step="0.001">
+</td>
+<td>Top</td>
+<td><input id="vU_d" type="number" inputmode="numeric" min="0"></td>
+<td><input id="vU_m" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="vU_s" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="hU_d" type="number" inputmode="numeric" min="0"></td>
+<td><input id="hU_m" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="hU_s" type="number" inputmode="numeric" min="0" max="59"></td>
+</tr>
+
+<tr>
+<td>Bot</td>
+<td><input id="vL_d" type="number" inputmode="numeric" min="0"></td>
+<td><input id="vL_m" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="vL_s" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="hL_d" type="number" inputmode="numeric" min="0"></td>
+<td><input id="hL_m" type="number" inputmode="numeric" min="0" max="59"></td>
+<td><input id="hL_s" type="number" inputmode="numeric" min="0" max="59"></td>
+</tr>
+</table>
+
+<button class="add" onclick="addData()">➕ 추가</button>
+<button class="delete" onclick="deleteSelected()">🗑 삭제</button>
+<button class="reset" onclick="resetAll()">⚠ 초기화</button>
+
+<div class="result-wrap">
+<h4>📊 결과</h4>
+<table id="resultTable">
+<tr>
+<th>✔</th><th>지점</th><th>ΔH</th><th>ΔX</th><th>기울기</th><th>등급</th>
+</tr>
+</table>
+</div>
+
+<script>
+let dataList=[];
+
+window.onload=function(){
+    let saved=localStorage.getItem("tiltData");
+    if(saved){
+        dataList=JSON.parse(saved);
+        render();
+    }
+};
+
+function save(){localStorage.setItem("tiltData",JSON.stringify(dataList));}
+
+function dms(d,m,s){
+    d=parseFloat(d)||0;
+    m=parseFloat(m)||0;
+    s=parseFloat(s)||0;
+    if(m>=60||s>=60) throw "분/초 오류";
+    return d+(m/60)+(s/3600);
+}
+
+function rad(d){return d*Math.PI/180;}
+
+function addData(){
+try{
+    let P=point.value;
+    let D=parseFloat(distance.value);
+    if(!D) throw "거리 오류";
+
+    let vU=dms(vU_d.value,vU_m.value,vU_s.value);
+    let vL=dms(vL_d.value,vL_m.value,vL_s.value);
+    let hU=rad(dms(hU_d.value,hU_m.value,hU_s.value));
+    let hL=rad(dms(hL_d.value,hL_m.value,hL_s.value));
+
+    let aU=rad(90-vU);
+    let aL=rad(90-vL);
+
+    let dH=D*(Math.tan(aU)-Math.tan(aL));
+    let dX=D*(Math.tan(hU)-Math.tan(hL));
+
+    let slope=0,grade="A";
+
+    if(Math.abs(dX)>0.000001){
+        slope=dH/dX;
+        let A=Math.abs(slope);
+        if(A>=750) grade="A";
+        else if(A>=500) grade="B";
+        else if(A>=250) grade="C";
+        else if(A>=150) grade="D";
+        else grade="E";
+    }else{
+        dX=0;
+        slope=0;
+        grade="A";
+    }
+
+    dataList.push({
+        point:P,
+        deltaH:dH.toFixed(3),
+        deltaX:dX.toFixed(3),
+        slope:slope.toFixed(2),
+        grade
+    });
+
+    save();
+    render();
+    document.querySelectorAll("input").forEach(i=>i.value="");
+
+}catch(e){alert("⚠ "+e);}
+}
+
+function render(){
+    dataList.sort((a,b)=>parseFloat(a.point)-parseFloat(b.point));
+    let t=document.getElementById("resultTable");
+    t.innerHTML="<tr><th>✔</th><th>지점</th><th>ΔH</th><th>ΔX</th><th>기울기</th><th>등급</th></tr>";
+    dataList.forEach((d,i)=>{
+        let r=t.insertRow();
+        r.insertCell(0).innerHTML=`<input type="checkbox" value="${i}">`;
+        r.insertCell(1).innerHTML=d.point;
+        r.insertCell(2).innerHTML=d.deltaH;
+        r.insertCell(3).innerHTML=d.deltaX;
+        r.insertCell(4).innerHTML=d.slope;
+        r.insertCell(5).innerHTML=d.grade;
+    });
+}
+
+function deleteSelected(){
+    let idx=[...document.querySelectorAll("input[type='checkbox']:checked")]
+        .map(c=>parseInt(c.value));
+    dataList=dataList.filter((_,i)=>!idx.includes(i));
+    save();
+    render();
+}
+
+function resetAll(){
+    if(confirm("전체 삭제?")){
+        dataList=[];
+        localStorage.removeItem("tiltData");
+        render();
+    }
+}
+</script>
+
+</body>
+</html>
