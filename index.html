@@ -11,28 +11,21 @@ body{
     background:#f4f6f8;
     margin:0;
     padding:6px;
-    font-size:10px; /* 🔹 전체 폰트 10 */
+    font-size:10px;
 }
-
-.table-wrap{
-    width:100%;
-}
-
+.table-wrap{ width:100%; }
 table{
     width:100%;
     table-layout:fixed;
     border-collapse:collapse;
     background:white;
 }
-
 th,td{
     border:1px solid #ccc;
     padding:4px 2px;
     text-align:center;
     font-size:10px;
-    word-break:keep-all;
 }
-
 input{
     width:100%;
     box-sizing:border-box;
@@ -41,7 +34,6 @@ input{
     text-align:center;
     border:1px solid #ccc;
 }
-
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{
     -webkit-appearance:none;
@@ -72,22 +64,13 @@ input[type=number]{ -moz-appearance:textfield; }
     align-items:center;
     margin-top:8px;
 }
-
 .header-left{
     display:flex;
     align-items:center;
     gap:6px;
 }
-
-/* 🔹 방향 설명 + 단위만 8px */
-.note{
-    font-size:8px;
-    color:#555;
-}
-.unit{
-    font-size:8px;
-    color:#555;
-}
+.note{ font-size:8px; color:#555; }
+.unit{ font-size:8px; color:#555; }
 </style>
 </head>
 
@@ -165,6 +148,20 @@ input[type=number]{ -moz-appearance:textfield; }
 <script>
 let dataList=[];
 
+/* 🔥 저장 */
+function saveData(){
+    localStorage.setItem("slopeData", JSON.stringify(dataList));
+}
+
+/* 🔥 복원 */
+function loadData(){
+    const saved = localStorage.getItem("slopeData");
+    if(saved){
+        dataList = JSON.parse(saved);
+        render();
+    }
+}
+
 function dms(d,m,s){
     return (parseFloat(d)||0) + (parseFloat(m)||0)/60 + (parseFloat(s)||0)/3600;
 }
@@ -172,9 +169,15 @@ function rad(d){ return d*Math.PI/180; }
 
 function addData(){
 try{
-    let P=document.getElementById("point").value;
+    let P=document.getElementById("point").value.trim();
     let D=parseFloat(document.getElementById("distance").value);
+    if(!P) throw "지점명 입력";
     if(!D) throw "거리 오류";
+
+    if(dataList.some(d=>d.point===P)){
+        alert("이미 존재하는 지점입니다.");
+        return;
+    }
 
     let vU=dms(vU_d.value,vU_m.value,vU_s.value);
     let vL=dms(vL_d.value,vL_m.value,vL_s.value);
@@ -185,7 +188,6 @@ try{
 
     let dH=D*(Math.tan(aU)-Math.tan(aL));
     let dX=D*Math.tan(hU);
-
     let slope=(Math.abs(dX)>0.000001)? dH/dX : 0;
 
     let 조사높이=(Math.round(dH*1000)/1000).toFixed(3);
@@ -195,14 +197,22 @@ try{
     if(slopeInt>0) slopeInt="+"+slopeInt;
 
     let grade="A";
-    let A=Math.abs(slope);
-    if(A<750) grade="B";
-    if(A<500) grade="C";
-    if(A<250) grade="D";
-    if(A<150) grade="E";
+    if(Math.round(slope)!==0){
+        let A=Math.abs(slope);
+        if(A<750) grade="B";
+        if(A<500) grade="C";
+        if(A<250) grade="D";
+        if(A<150) grade="E";
+    }
 
     dataList.push({ point:P, 조사높이, deltaL, slope:slopeInt, grade });
+
+    dataList.sort((a,b)=>
+        a.point.localeCompare(b.point,'ko',{numeric:true})
+    );
+
     render();
+    saveData();   // 🔥 자동 저장
     clearInputs();
 
 }catch(e){ alert(e); }
@@ -211,9 +221,9 @@ try{
 function render(){
     let t=document.getElementById("resultTable");
     t.innerHTML="<tr><th>✔</th><th>지점</th><th>조사높이</th><th>Δl</th><th>기울기</th><th>등급</th></tr>";
-    dataList.forEach((d,i)=>{
+    dataList.forEach(d=>{
         let r=t.insertRow();
-        r.insertCell(0).innerHTML=`<input type="checkbox" value="${i}">`;
+        r.insertCell(0).innerHTML=`<input type="checkbox" value="${d.point}">`;
         r.insertCell(1).innerHTML=d.point;
         r.insertCell(2).innerHTML=d.조사높이;
         r.insertCell(3).innerHTML=d.deltaL;
@@ -223,16 +233,25 @@ function render(){
 }
 
 function deleteSelected(){
-    let idx=[...document.querySelectorAll("input[type='checkbox']:checked")]
-        .map(c=>parseInt(c.value));
-    dataList=dataList.filter((_,i)=>!idx.includes(i));
+    const table = document.getElementById("resultTable");
+    const selected = [...table.querySelectorAll("input[type='checkbox']:checked")]
+        .map(cb => cb.value);
+
+    if(selected.length===0){
+        alert("삭제할 지점을 선택하세요.");
+        return;
+    }
+
+    dataList = dataList.filter(d=>!selected.includes(d.point));
     render();
+    saveData();   // 🔥 자동 저장
 }
 
 function resetAll(){
     if(confirm("전체 삭제?")){
         dataList=[];
         render();
+        saveData();  // 🔥 자동 저장
     }
 }
 
@@ -242,6 +261,9 @@ function clearInputs(){
     });
     document.getElementById("point").focus();
 }
+
+/* 🔥 페이지 열릴 때 자동 복원 */
+window.onload = loadData;
 </script>
 
 </body>
