@@ -6,52 +6,110 @@
 <title>기울기 산정</title>
 
 <style>
-body{margin:0;font-family:sans-serif;background:#f4f6fa;font-size:11px;}
-.wrapper{display:flex;flex-direction:column;height:100vh;}
-
-/* 입력영역 고정 */
-.inputArea{
-position:fixed;top:0;left:0;right:0;
-background:#fff;padding:8px;border-bottom:1px solid #ccc;z-index:10;
+body{
+    margin:0;
+    font-family:sans-serif;
+    background:#f4f6fa;
+    font-size:11px;
 }
 
-table{width:100%;border-collapse:collapse;table-layout:fixed;}
-th,td{border:1px solid #bbb;padding:4px;text-align:center;}
+.wrapper{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
 
-input{width:100%;padding:4px;text-align:center;font-size:11px;}
+/* ===== 입력 영역 고정 ===== */
+.inputArea{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    background:#fff;
+    padding:8px;
+    border-bottom:1px solid #ccc;
+    z-index:10;
+}
+
+/* ===== 표 기본 ===== */
+table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+th,td{
+    border:1px solid #bbb;
+    padding:4px;
+    text-align:center;
+}
+
+/* ===== 입력창 ===== */
+input{
+    width:100%;
+    padding:4px;
+    text-align:center;
+    font-size:11px;
+    box-sizing:border-box;   /* 🔥 표 밖으로 안나가게 */
+}
+
+/* 숫자 증감 버튼 제거 */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{
--webkit-appearance:none;margin:0;}
-input[type=number]{-moz-appearance:textfield;}
+    -webkit-appearance:none;
+    margin:0;
+}
+input[type=number]{
+    -moz-appearance:textfield;
+}
 
-.btnRow{display:flex;gap:8px;margin-top:8px;}
+/* ===== 버튼 ===== */
+.btnRow{
+    display:flex;
+    gap:8px;
+    margin-top:8px;
+}
+
 .btnRow button{
-flex:1;padding:10px 0;font-weight:bold;border:none;
-border-radius:6px;color:#fff;font-size:12px;}
+    flex:1;
+    padding:10px 0;
+    font-weight:bold;
+    border:none;
+    border-radius:6px;
+    color:#fff;
+    font-size:12px;
+}
+
 .add{background:#2b78c5;}
 .delete{background:#c62828;}
 .reset{background:#444;}
 
-/* 결과만 스크롤 */
+/* ===== 결과 영역 (입력 바로 아래 한칸 간격) ===== */
 .resultArea{
-margin-top:230px;
-overflow-y:auto;
-flex:1;
-padding:6px;
+    margin-top:195px;   /* 🔥 간격 최소화 */
+    overflow-y:auto;
+    flex:1;
+    padding:6px;
 }
 
 .resultHeader{
-display:flex;justify-content:space-between;
-align-items:center;margin-bottom:4px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4px;
 }
 
 .small{font-size:9px;}
-.detailRow{
-background:#eef3ff;
-font-size:9px;
-text-align:left;
+
+.resultRow{
+    cursor:pointer;
 }
-.resultRow{cursor:pointer;}
+
+.detailRow{
+    background:#eef3ff;
+    font-size:9px;
+    text-align:left;
+}
 </style>
 </head>
 
@@ -219,8 +277,7 @@ let existing=document.getElementById("detail"+i);
 if(existing){existing.remove();return;}
 
 let d=dataList[i];
-let table=resultTable;
-let row=table.insertRow(i+2);
+let row=resultTable.insertRow(i+2);
 row.id="detail"+i;
 row.className="detailRow";
 
