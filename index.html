@@ -3,82 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>기울기 측정</title>
+<title>기울기 산정</title>
 
 <style>
-body{
-    font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-    background:#f4f6f8;
-    margin:0;
-    padding:6px;
-    font-size:10px;
+body{margin:0;font-family:sans-serif;background:#f4f6fa;font-size:11px;}
+.wrapper{display:flex;flex-direction:column;height:100vh;}
+
+/* 입력영역 고정 */
+.inputArea{
+position:fixed;top:0;left:0;right:0;
+background:#fff;padding:8px;border-bottom:1px solid #ccc;z-index:10;
 }
-.table-wrap{ width:100%; }
-table{
-    width:100%;
-    table-layout:fixed;
-    border-collapse:collapse;
-    background:white;
-}
-th,td{
-    border:1px solid #ccc;
-    padding:4px 2px;
-    text-align:center;
-    font-size:10px;
-}
-input{
-    width:100%;
-    box-sizing:border-box;
-    padding:4px;
-    font-size:10px;
-    text-align:center;
-    border:1px solid #ccc;
-}
+
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+th,td{border:1px solid #bbb;padding:4px;text-align:center;}
+
+input{width:100%;padding:4px;text-align:center;font-size:11px;}
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{
-    -webkit-appearance:none;
-    margin:0;
-}
-input[type=number]{ -moz-appearance:textfield; }
+-webkit-appearance:none;margin:0;}
+input[type=number]{-moz-appearance:textfield;}
 
-.btn-row{
-    display:flex;
-    gap:6px;
-    margin-top:6px;
-}
-.btn-row button{
-    flex:1;
-    padding:8px 0;
-    font-size:10px;
-    border:none;
-    border-radius:6px;
-    font-weight:bold;
-}
-.add{background:#1976d2;color:white;}
-.delete{background:#c62828;color:white;}
-.reset{background:#424242;color:white;}
+.btnRow{display:flex;gap:8px;margin-top:8px;}
+.btnRow button{
+flex:1;padding:10px 0;font-weight:bold;border:none;
+border-radius:6px;color:#fff;font-size:12px;}
+.add{background:#2b78c5;}
+.delete{background:#c62828;}
+.reset{background:#444;}
 
-.result-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-top:8px;
+/* 결과만 스크롤 */
+.resultArea{
+margin-top:230px;
+overflow-y:auto;
+flex:1;
+padding:6px;
 }
-.header-left{
-    display:flex;
-    align-items:center;
-    gap:6px;
+
+.resultHeader{
+display:flex;justify-content:space-between;
+align-items:center;margin-bottom:4px;
 }
-.note{ font-size:8px; color:#555; }
-.unit{ font-size:8px; color:#555; }
+
+.small{font-size:9px;}
+.detailRow{
+background:#eef3ff;
+font-size:9px;
+text-align:left;
+}
+.resultRow{cursor:pointer;}
 </style>
 </head>
 
 <body>
+<div class="wrapper">
 
-<h3>📐 기울기 입력</h3>
+<div class="inputArea">
 
-<div class="table-wrap">
 <table>
 <tr>
 <th rowspan="2">지점</th>
@@ -94,45 +75,45 @@ input[type=number]{ -moz-appearance:textfield; }
 
 <tr>
 <td rowspan="2"><input id="point"></td>
-<td rowspan="2"><input type="number" id="distance" step="0.001"></td>
+<td rowspan="2"><input type="number" id="distance" inputmode="decimal"></td>
 <td>Top</td>
-<td><input id="vU_d" type="number"></td>
-<td><input id="vU_m" type="number"></td>
-<td><input id="vU_s" type="number"></td>
-<td><input id="hU_d" type="number"></td>
-<td><input id="hU_m" type="number"></td>
-<td><input id="hU_s" type="number"></td>
+<td><input type="number" id="vU_d" inputmode="numeric"></td>
+<td><input type="number" id="vU_m" inputmode="numeric"></td>
+<td><input type="number" id="vU_s" inputmode="numeric"></td>
+<td><input type="number" id="hU_d" inputmode="numeric"></td>
+<td><input type="number" id="hU_m" inputmode="numeric"></td>
+<td><input type="number" id="hU_s" inputmode="numeric"></td>
 </tr>
 
 <tr>
 <td>Bot</td>
-<td><input id="vL_d" type="number"></td>
-<td><input id="vL_m" type="number"></td>
-<td><input id="vL_s" type="number"></td>
+<td><input type="number" id="vL_d" inputmode="numeric"></td>
+<td><input type="number" id="vL_m" inputmode="numeric"></td>
+<td><input type="number" id="vL_s" inputmode="numeric"></td>
 <td><input value="0" readonly></td>
 <td><input value="0" readonly></td>
 <td><input value="0" readonly></td>
 </tr>
 </table>
-</div>
 
-<div class="btn-row">
+<div class="btnRow">
 <button class="add" onclick="addData()">추가</button>
 <button class="delete" onclick="deleteSelected()">삭제</button>
 <button class="reset" onclick="resetAll()">초기화</button>
 </div>
 
-<div class="result-header">
-<div class="header-left">
-<h4 style="margin:0;">📊 결과</h4>
-<div class="note">
-(우측으로 기울어진 경우 "+", 좌측으로 기울어진 경우 "-")
-</div>
-</div>
-<div class="unit">(단위 : m)</div>
 </div>
 
-<div class="table-wrap">
+<div class="resultArea">
+
+<div class="resultHeader">
+<div>
+<b>결과</b>
+<span class="small">(우측 + / 좌측 -)</span>
+</div>
+<div class="small">(단위:m)</div>
+</div>
+
 <table id="resultTable">
 <tr>
 <th>✔</th>
@@ -143,127 +124,140 @@ input[type=number]{ -moz-appearance:textfield; }
 <th>등급</th>
 </tr>
 </table>
+
+</div>
 </div>
 
 <script>
-let dataList=[];
+let dataList=JSON.parse(localStorage.getItem("slopeData")||"[]");
 
-/* 🔥 저장 */
-function saveData(){
-    localStorage.setItem("slopeData", JSON.stringify(dataList));
+function save(){
+localStorage.setItem("slopeData",JSON.stringify(dataList));
 }
 
-/* 🔥 복원 */
-function loadData(){
-    const saved = localStorage.getItem("slopeData");
-    if(saved){
-        dataList = JSON.parse(saved);
-        render();
-    }
-}
-
+function rad(d){return d*Math.PI/180}
 function dms(d,m,s){
-    return (parseFloat(d)||0) + (parseFloat(m)||0)/60 + (parseFloat(s)||0)/3600;
+return (parseFloat(d)||0)+(parseFloat(m)||0)/60+(parseFloat(s)||0)/3600
 }
-function rad(d){ return d*Math.PI/180; }
 
 function addData(){
 try{
-    let P=document.getElementById("point").value.trim();
-    let D=parseFloat(document.getElementById("distance").value);
-    if(!P) throw "지점명 입력";
-    if(!D) throw "거리 오류";
+let P=point.value.trim();
+if(!P) throw "지점 입력";
+if(dataList.some(d=>d.point===P)) throw "중복 지점";
 
-    if(dataList.some(d=>d.point===P)){
-        alert("이미 존재하는 지점입니다.");
-        return;
-    }
+let D=parseFloat(distance.value);
+if(!D) throw "거리 오류";
 
-    let vU=dms(vU_d.value,vU_m.value,vU_s.value);
-    let vL=dms(vL_d.value,vL_m.value,vL_s.value);
-    let hU=rad(dms(hU_d.value,hU_m.value,hU_s.value));
+let vU=dms(vU_d.value,vU_m.value,vU_s.value);
+let vL=dms(vL_d.value,vL_m.value,vL_s.value);
+let hU=rad(dms(hU_d.value,hU_m.value,hU_s.value));
 
-    let aU=rad(90-vU);
-    let aL=rad(90-vL);
+let aU=rad(90-vU);
+let aL=rad(90-vL);
 
-    let dH=D*(Math.tan(aU)-Math.tan(aL));
-    let dX=D*Math.tan(hU);
-    let slope=(Math.abs(dX)>0.000001)? dH/dX : 0;
+let dH=D*(Math.tan(aU)-Math.tan(aL));
+let dX=D*Math.tan(hU);
+let slope=(Math.abs(dX)>0.000001)? dH/dX:0;
 
-    let 조사높이=(Math.round(dH*1000)/1000).toFixed(3);
-    let deltaL=(Math.round(dX*1000)/1000).toFixed(3);
+let 조사높이=(Math.round(dH*1000)/1000).toFixed(3);
+let deltaL=(Math.round(dX*1000)/1000).toFixed(3);
 
-    let slopeInt=Math.round(slope);
-    if(slopeInt>0) slopeInt="+"+slopeInt;
+let slopeInt=Math.round(slope);
+if(slopeInt>0) slopeInt="+"+slopeInt;
 
-    let grade="A";
-    if(Math.round(slope)!==0){
-        let A=Math.abs(slope);
-        if(A<750) grade="B";
-        if(A<500) grade="C";
-        if(A<250) grade="D";
-        if(A<150) grade="E";
-    }
+let grade="A";
+let A=Math.abs(slope);
+if(A<750) grade="B";
+if(A<500) grade="C";
+if(A<250) grade="D";
+if(A<150) grade="E";
+if(slope==0) grade="A";
 
-    dataList.push({ point:P, 조사높이, deltaL, slope:slopeInt, grade });
+dataList.push({
+point:P,조사높이,deltaL,slope:slopeInt,grade,
+input:{
+distance:D,
+vU:{d:vU_d.value,m:vU_m.value,s:vU_s.value},
+vL:{d:vL_d.value,m:vL_m.value,s:vL_s.value},
+hU:{d:hU_d.value,m:hU_m.value,s:hU_s.value}
+}
+});
 
-    dataList.sort((a,b)=>
-        a.point.localeCompare(b.point,'ko',{numeric:true})
-    );
+dataList.sort((a,b)=>
+a.point.localeCompare(b.point,'ko',{numeric:true})
+);
 
-    render();
-    saveData();   // 🔥 자동 저장
-    clearInputs();
+save();
+render();
+clearInputs();
 
-}catch(e){ alert(e); }
+}catch(e){alert(e);}
 }
 
 function render(){
-    let t=document.getElementById("resultTable");
-    t.innerHTML="<tr><th>✔</th><th>지점</th><th>조사높이</th><th>Δl</th><th>기울기</th><th>등급</th></tr>";
-    dataList.forEach(d=>{
-        let r=t.insertRow();
-        r.insertCell(0).innerHTML=`<input type="checkbox" value="${d.point}">`;
-        r.insertCell(1).innerHTML=d.point;
-        r.insertCell(2).innerHTML=d.조사높이;
-        r.insertCell(3).innerHTML=d.deltaL;
-        r.insertCell(4).innerHTML=d.slope;
-        r.insertCell(5).innerHTML=d.grade;
-    });
+let t=resultTable;
+t.innerHTML="<tr><th>✔</th><th>지점</th><th>조사높이</th><th>Δl</th><th>기울기</th><th>등급</th></tr>";
+
+dataList.forEach((d,i)=>{
+let r=t.insertRow();
+r.className="resultRow";
+
+r.insertCell(0).innerHTML=`<input type="checkbox" value="${d.point}" onclick="event.stopPropagation()">`;
+r.insertCell(1).innerHTML=d.point;
+r.insertCell(2).innerHTML=d.조사높이;
+r.insertCell(3).innerHTML=d.deltaL;
+r.insertCell(4).innerHTML=d.slope;
+r.insertCell(5).innerHTML=d.grade;
+
+r.onclick=()=>toggleDetail(i);
+});
+}
+
+function toggleDetail(i){
+let existing=document.getElementById("detail"+i);
+if(existing){existing.remove();return;}
+
+let d=dataList[i];
+let table=resultTable;
+let row=table.insertRow(i+2);
+row.id="detail"+i;
+row.className="detailRow";
+
+let cell=row.insertCell(0);
+cell.colSpan=6;
+
+cell.innerHTML=
+"<b>산출 입력값</b><br>"+
+"거리: "+d.input.distance+"<br>"+
+"수직 Top: "+d.input.vU.d+"° "+d.input.vU.m+"′ "+d.input.vU.s+"″<br>"+
+"수직 Bot: "+d.input.vL.d+"° "+d.input.vL.m+"′ "+d.input.vL.s+"″<br>"+
+"수평 Top: "+d.input.hU.d+"° "+d.input.hU.m+"′ "+d.input.hU.s+"″";
 }
 
 function deleteSelected(){
-    const table = document.getElementById("resultTable");
-    const selected = [...table.querySelectorAll("input[type='checkbox']:checked")]
-        .map(cb => cb.value);
-
-    if(selected.length===0){
-        alert("삭제할 지점을 선택하세요.");
-        return;
-    }
-
-    dataList = dataList.filter(d=>!selected.includes(d.point));
-    render();
-    saveData();   // 🔥 자동 저장
+let selected=[...resultTable.querySelectorAll("input[type='checkbox']:checked")].map(cb=>cb.value);
+if(selected.length===0){alert("삭제 선택");return;}
+dataList=dataList.filter(d=>!selected.includes(d.point));
+save();
+render();
 }
 
 function resetAll(){
-    if(confirm("전체 삭제?")){
-        dataList=[];
-        render();
-        saveData();  // 🔥 자동 저장
-    }
+if(confirm("전체 삭제?")){
+dataList=[];
+save();
+render();
+}
 }
 
 function clearInputs(){
-    document.querySelectorAll("input").forEach(i=>{
-        if(!i.readOnly) i.value="";
-    });
-    document.getElementById("point").focus();
+document.querySelectorAll(".inputArea input").forEach(i=>{
+if(!i.readOnly)i.value="";
+});
 }
 
-/* 🔥 페이지 열릴 때 자동 복원 */
-window.onload = loadData;
+render();
 </script>
 
 </body>
