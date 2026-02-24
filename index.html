@@ -19,7 +19,6 @@ body{
     height:100vh;
 }
 
-/* ===== 입력 영역 고정 ===== */
 .inputArea{
     position:fixed;
     top:0;
@@ -31,7 +30,6 @@ body{
     z-index:10;
 }
 
-/* ===== 표 기본 ===== */
 table{
     width:100%;
     border-collapse:collapse;
@@ -44,7 +42,6 @@ th,td{
     text-align:center;
 }
 
-/* ===== 입력창 ===== */
 input{
     width:100%;
     padding:4px;
@@ -53,17 +50,6 @@ input{
     box-sizing:border-box;
 }
 
-/* 숫자 증감 버튼 제거 */
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button{
-    -webkit-appearance:none;
-    margin:0;
-}
-input[type=number]{
-    -moz-appearance:textfield;
-}
-
-/* ===== 버튼 ===== */
 .btnRow{
     display:flex;
     gap:8px;
@@ -84,7 +70,6 @@ input[type=number]{
 .delete{background:#c62828;}
 .reset{background:#444;}
 
-/* ===== 결과 영역 ===== */
 .resultArea{
     margin-top:195px;
     overflow-y:auto;
@@ -101,9 +86,7 @@ input[type=number]{
 
 .small{font-size:9px;}
 
-.resultRow{
-    cursor:pointer;
-}
+.resultRow{ cursor:pointer; }
 
 .detailRow{
     background:#eef3ff;
@@ -112,7 +95,6 @@ input[type=number]{
     line-height:1.5;
 }
 
-/* ===== 체크박스 모바일 완전 중앙 ===== */
 #resultTable th:first-child,
 #resultTable td:first-child{
     width:40px;
@@ -148,21 +130,47 @@ input[type=number]{
 
 <tr>
 <td rowspan="2"><input id="point"></td>
-<td rowspan="2"><input type="number" id="distance" inputmode="decimal"></td>
+
+<td rowspan="2">
+<input type="text" id="distance"
+inputmode="decimal"
+pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+</td>
+
 <td>Top</td>
-<td><input type="number" id="vU_d"></td>
-<td><input type="number" id="vU_m"></td>
-<td><input type="number" id="vU_s"></td>
-<td><input type="number" id="hU_d"></td>
-<td><input type="number" id="hU_m"></td>
-<td><input type="number" id="hU_s"></td>
+
+<td><input type="text" id="vU_d" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="vU_m" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="vU_s" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="hU_d" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="hU_m" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="hU_s" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
 </tr>
 
 <tr>
 <td>Bot</td>
-<td><input type="number" id="vL_d"></td>
-<td><input type="number" id="vL_m"></td>
-<td><input type="number" id="vL_s"></td>
+
+<td><input type="text" id="vL_d" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="vL_m" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
+<td><input type="text" id="vL_s" inputmode="numeric" pattern="[0-9]*"
+oninput="this.value=this.value.replace(/[^0-9]/g,'')"></td>
+
 <td><input value="0" readonly></td>
 <td><input value="0" readonly></td>
 <td><input value="0" readonly></td>
@@ -288,7 +296,6 @@ r.onclick=function(){toggleDetail(this,i);};
 }
 
 function toggleDetail(row,i){
-
 let next=row.nextElementSibling;
 if(next && next.classList.contains("detailRow")){
 next.remove();
