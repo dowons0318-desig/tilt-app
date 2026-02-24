@@ -109,22 +109,21 @@ input[type=number]{
     background:#eef3ff;
     font-size:9px;
     text-align:left;
+    line-height:1.5;
 }
 
-/* ===== 체크박스 완전 중앙 정렬 ===== */
+/* ===== 체크박스 모바일 완전 중앙 ===== */
 #resultTable th:first-child,
 #resultTable td:first-child{
     width:40px;
-}
-
-#resultTable td:first-child{
-    display:flex;
-    justify-content:center;
-    align-items:center;
+    text-align:center;
 }
 
 #resultTable input[type="checkbox"]{
-    margin:0;
+    display:block;
+    margin:auto;
+    width:16px;
+    height:16px;
 }
 </style>
 </head>
@@ -151,19 +150,19 @@ input[type=number]{
 <td rowspan="2"><input id="point"></td>
 <td rowspan="2"><input type="number" id="distance" inputmode="decimal"></td>
 <td>Top</td>
-<td><input type="number" id="vU_d" inputmode="numeric"></td>
-<td><input type="number" id="vU_m" inputmode="numeric"></td>
-<td><input type="number" id="vU_s" inputmode="numeric"></td>
-<td><input type="number" id="hU_d" inputmode="numeric"></td>
-<td><input type="number" id="hU_m" inputmode="numeric"></td>
-<td><input type="number" id="hU_s" inputmode="numeric"></td>
+<td><input type="number" id="vU_d"></td>
+<td><input type="number" id="vU_m"></td>
+<td><input type="number" id="vU_s"></td>
+<td><input type="number" id="hU_d"></td>
+<td><input type="number" id="hU_m"></td>
+<td><input type="number" id="hU_s"></td>
 </tr>
 
 <tr>
 <td>Bot</td>
-<td><input type="number" id="vL_d" inputmode="numeric"></td>
-<td><input type="number" id="vL_m" inputmode="numeric"></td>
-<td><input type="number" id="vL_s" inputmode="numeric"></td>
+<td><input type="number" id="vL_d"></td>
+<td><input type="number" id="vL_m"></td>
+<td><input type="number" id="vL_s"></td>
 <td><input value="0" readonly></td>
 <td><input value="0" readonly></td>
 <td><input value="0" readonly></td>
@@ -284,20 +283,23 @@ r.insertCell(3).innerHTML=d.deltaL;
 r.insertCell(4).innerHTML=d.slope;
 r.insertCell(5).innerHTML=d.grade;
 
-r.onclick=()=>toggleDetail(i);
+r.onclick=function(){toggleDetail(this,i);};
 });
 }
 
-function toggleDetail(i){
-let existing=document.getElementById("detail"+i);
-if(existing){existing.remove();return;}
+function toggleDetail(row,i){
+
+let next=row.nextElementSibling;
+if(next && next.classList.contains("detailRow")){
+next.remove();
+return;
+}
 
 let d=dataList[i];
-let row=resultTable.insertRow(i+2);
-row.id="detail"+i;
-row.className="detailRow";
+let detail=resultTable.insertRow(row.rowIndex+1);
+detail.className="detailRow";
 
-let cell=row.insertCell(0);
+let cell=detail.insertCell(0);
 cell.colSpan=6;
 
 cell.innerHTML=
