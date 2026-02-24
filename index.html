@@ -50,7 +50,7 @@ input{
     padding:4px;
     text-align:center;
     font-size:11px;
-    box-sizing:border-box;   /* 🔥 표 밖으로 안나가게 */
+    box-sizing:border-box;
 }
 
 /* 숫자 증감 버튼 제거 */
@@ -84,9 +84,9 @@ input[type=number]{
 .delete{background:#c62828;}
 .reset{background:#444;}
 
-/* ===== 결과 영역 (입력 바로 아래 한칸 간격) ===== */
+/* ===== 결과 영역 ===== */
 .resultArea{
-    margin-top:195px;   /* 🔥 간격 최소화 */
+    margin-top:195px;
     overflow-y:auto;
     flex:1;
     padding:6px;
@@ -109,6 +109,22 @@ input[type=number]{
     background:#eef3ff;
     font-size:9px;
     text-align:left;
+}
+
+/* ===== 체크박스 완전 중앙 정렬 ===== */
+#resultTable th:first-child,
+#resultTable td:first-child{
+    width:40px;
+}
+
+#resultTable td:first-child{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+#resultTable input[type="checkbox"]{
+    margin:0;
 }
 </style>
 </head>
