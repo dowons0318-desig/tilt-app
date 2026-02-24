@@ -11,18 +11,16 @@ body{
     background:#f4f6f8;
     margin:0;
     padding:6px;
-    font-size:12px;
+    font-size:10px; /* 🔹 전체 폰트 10 */
 }
 
-/* 🔹 공통 표 설정 */
 .table-wrap{
     width:100%;
-    max-width:100%;
 }
 
 table{
     width:100%;
-    table-layout:fixed;   /* 🔥 폭 강제 고정 */
+    table-layout:fixed;
     border-collapse:collapse;
     background:white;
 }
@@ -31,7 +29,7 @@ th,td{
     border:1px solid #ccc;
     padding:4px 2px;
     text-align:center;
-    font-size:12px;
+    font-size:10px;
     word-break:keep-all;
 }
 
@@ -39,10 +37,9 @@ input{
     width:100%;
     box-sizing:border-box;
     padding:4px;
-    font-size:12px;
+    font-size:10px;
     text-align:center;
     border:1px solid #ccc;
-    background:white;
 }
 
 input[type=number]::-webkit-outer-spin-button,
@@ -60,7 +57,7 @@ input[type=number]{ -moz-appearance:textfield; }
 .btn-row button{
     flex:1;
     padding:8px 0;
-    font-size:13px;
+    font-size:10px;
     border:none;
     border-radius:6px;
     font-weight:bold;
@@ -78,12 +75,19 @@ input[type=number]{ -moz-appearance:textfield; }
 
 .header-left{
     display:flex;
-    gap:6px;
     align-items:center;
+    gap:6px;
 }
 
-.note{font-size:10px;color:#666;}
-.unit{font-size:11px;color:#555;}
+/* 🔹 방향 설명 + 단위만 8px */
+.note{
+    font-size:8px;
+    color:#555;
+}
+.unit{
+    font-size:8px;
+    color:#555;
+}
 </style>
 </head>
 
@@ -137,8 +141,10 @@ input[type=number]{ -moz-appearance:textfield; }
 
 <div class="result-header">
 <div class="header-left">
-<h4>📊 결과</h4>
-<div class="note">(우측 "+", 좌측 "-")</div>
+<h4 style="margin:0;">📊 결과</h4>
+<div class="note">
+(우측으로 기울어진 경우 "+", 좌측으로 기울어진 경우 "-")
+</div>
 </div>
 <div class="unit">(단위 : m)</div>
 </div>
@@ -166,8 +172,8 @@ function rad(d){ return d*Math.PI/180; }
 
 function addData(){
 try{
-    let P=point.value;
-    let D=parseFloat(distance.value);
+    let P=document.getElementById("point").value;
+    let D=parseFloat(document.getElementById("distance").value);
     if(!D) throw "거리 오류";
 
     let vU=dms(vU_d.value,vU_m.value,vU_s.value);
@@ -184,6 +190,7 @@ try{
 
     let 조사높이=(Math.round(dH*1000)/1000).toFixed(3);
     let deltaL=(Math.round(dX*1000)/1000).toFixed(3);
+
     let slopeInt=Math.round(slope);
     if(slopeInt>0) slopeInt="+"+slopeInt;
 
@@ -196,6 +203,7 @@ try{
 
     dataList.push({ point:P, 조사높이, deltaL, slope:slopeInt, grade });
     render();
+    clearInputs();
 
 }catch(e){ alert(e); }
 }
@@ -226,6 +234,13 @@ function resetAll(){
         dataList=[];
         render();
     }
+}
+
+function clearInputs(){
+    document.querySelectorAll("input").forEach(i=>{
+        if(!i.readOnly) i.value="";
+    });
+    document.getElementById("point").focus();
 }
 </script>
 
